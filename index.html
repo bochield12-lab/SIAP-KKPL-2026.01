@@ -24,6 +24,7 @@
     <div id="userInfoHeader" class="hidden text-right leading-tight">
       <p id="userNamaHeader" class="text-xs font-bold text-slate-800"></p>
       <p id="userJabatanHeader" class="text-[11px] font-semibold text-blue-600"></p>
+      <p id="userProdiHeader" class="text-[10px] text-slate-500"></p>
       <button onclick="logout()" class="text-[11px] text-rose-600 hover:underline font-bold mt-0.5 inline-block">Keluar <i class="fa-solid fa-right-from-bracket"></i></button>
     </div>
   </header>
@@ -60,6 +61,11 @@
 
     <!-- DASBOR ANGGOTA / MAHASISWA -->
     <div id="dashAnggotaCard" class="hidden space-y-5">
+      
+      <div id="welcomeCardAnggota" class="bg-gradient-to-r from-blue-600 to-indigo-600 text-white p-5 rounded-2xl shadow-md space-y-1">
+        <h3 id="welcomeNamaText" class="text-base font-extrabold">Halo, Selamat Datang!</h3>
+        <p id="welcomeDetailText" class="text-xs text-blue-100 font-medium"></p>
+      </div>
 
       <!-- TAB PRESENSI -->
       <div id="tabPresensi" class="bg-white border border-blue-100 p-6 rounded-2xl shadow-md space-y-5">
@@ -156,7 +162,7 @@
 
           <div class="grid grid-cols-2 gap-3">
             <div>
-              <label class="block text-xs font-bold text-slate-700 mb-1">Tanggal</label>
+              <label class="block text-xs font-bold text-slate-700 mb-1">Tanggal (DD/MM/YYYY)</label>
               <input type="date" id="jurnalTanggal" required class="w-full bg-slate-50 border border-slate-300 rounded-xl p-3 text-sm font-medium text-slate-800 shadow-sm">
             </div>
             <div>
@@ -170,15 +176,9 @@
             <textarea id="jurnalRincian" rows="3" required placeholder="Detail kegiatan..." class="w-full bg-slate-50 border border-slate-300 rounded-xl p-3 text-sm font-medium text-slate-800 shadow-sm"></textarea>
           </div>
 
-          <div class="grid grid-cols-2 gap-3">
-            <div>
-              <label class="block text-xs font-bold text-slate-700 mb-1">Sasaran</label>
-              <input type="text" id="jurnalSasaran" placeholder="Warga RT 02" class="w-full bg-slate-50 border border-slate-300 rounded-xl p-3 text-sm font-medium text-slate-800 shadow-sm">
-            </div>
-            <div>
-              <label class="block text-xs font-bold text-slate-700 mb-1">Target</label>
-              <input type="text" id="jurnalTarget" placeholder="20 Orang" class="w-full bg-slate-50 border border-slate-300 rounded-xl p-3 text-sm font-medium text-slate-800 shadow-sm">
-            </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1">Sasaran</label>
+            <input type="text" id="jurnalSasaran" placeholder="Warga RT 02" class="w-full bg-slate-50 border border-slate-300 rounded-xl p-3 text-sm font-medium text-slate-800 shadow-sm">
           </div>
 
           <div>
@@ -201,8 +201,26 @@
       <!-- TAB PIKET -->
       <div id="tabPiket" class="hidden bg-white border border-blue-100 p-6 rounded-2xl shadow-md space-y-4">
         <h3 class="text-base font-bold text-blue-600 border-b border-slate-100 pb-3"><i class="fa-solid fa-calendar-days"></i> Jadwal Piket Posko</h3>
-        <div id="listPiketContainer" class="space-y-3 text-sm">
-          <p class="text-slate-400 text-center py-4 font-medium">Memuat jadwal piket...</p>
+
+        <div class="p-4 bg-blue-50 border border-blue-200 rounded-xl">
+          <p class="text-xs font-bold text-blue-600 uppercase tracking-wide">Piket Hari Ini (<span id="piketHariLabel">-</span>)</p>
+          <p id="piketKelompokLabel" class="text-lg font-extrabold text-slate-800 mt-1">Memuat...</p>
+          <ul id="piketAnggotaList" class="mt-2 pl-4 list-disc space-y-0.5 text-sm text-slate-700"></ul>
+        </div>
+
+        <div>
+          <h4 class="text-xs font-bold text-slate-500 uppercase tracking-wide mb-1.5">Pola Jadwal Mingguan</h4>
+          <div id="piketPolaList" class="text-xs text-slate-600 space-y-1">
+            <p class="text-slate-400">Memuat pola jadwal...</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB RIWAYAT -->
+      <div id="tabRiwayat" class="hidden bg-white border border-blue-100 p-6 rounded-2xl shadow-md space-y-4">
+        <h3 class="text-base font-bold text-blue-600 border-b border-slate-100 pb-3"><i class="fa-solid fa-clock-rotate-left"></i> Riwayat Absen Saya</h3>
+        <div id="listRiwayatContainer" class="space-y-3 text-sm">
+          <p class="text-slate-400 text-center py-4 font-medium">Memuat riwayat...</p>
         </div>
       </div>
     </div>
@@ -232,8 +250,16 @@
 
           <div>
             <h4 class="text-sm font-bold text-slate-800 mb-2">Jadwal Piket Posko</h4>
-            <div id="dplListPiket" class="space-y-2 text-sm">
-              <p class="text-slate-400">Memuat jadwal piket...</p>
+            <div class="p-4 bg-blue-50 border border-blue-200 rounded-xl">
+              <p class="text-xs font-bold text-blue-600 uppercase tracking-wide">Piket Hari Ini (<span id="dplPiketHariLabel">-</span>)</p>
+              <p id="dplPiketKelompokLabel" class="text-base font-extrabold text-slate-800 mt-1">Memuat...</p>
+              <ul id="dplPiketAnggotaList" class="mt-2 pl-4 list-disc space-y-0.5 text-sm text-slate-700"></ul>
+            </div>
+            <div class="mt-3">
+              <h5 class="text-xs font-bold text-slate-500 uppercase tracking-wide mb-1.5">Pola Jadwal Mingguan</h5>
+              <div id="dplPiketPolaList" class="text-xs text-slate-600 space-y-1">
+                <p class="text-slate-400">Memuat pola jadwal...</p>
+              </div>
             </div>
           </div>
         </div>
@@ -246,8 +272,9 @@
           <p class="text-xs text-slate-500 mt-1">Pilih menu monitoring presensi atau rekap jurnal mahasiswa.</p>
         </div>
 
-        <div class="grid grid-cols-2 gap-2 bg-slate-50 p-1.5 rounded-xl border border-slate-200">
+        <div class="grid grid-cols-3 gap-2 bg-slate-50 p-1.5 rounded-xl border border-slate-200">
           <button id="subMonitoringPresensi" onclick="switchMonitoringSub('presensi')" class="py-2.5 rounded-lg bg-blue-600 text-white font-bold text-xs shadow-sm transition">Rekap Presensi</button>
+          <button id="subMonitoringKehadiran" onclick="switchMonitoringSub('kehadiran')" class="py-2.5 rounded-lg text-slate-600 font-bold text-xs hover:bg-slate-200 transition">Monitoring Kehadiran</button>
           <button id="subMonitoringJurnal" onclick="switchMonitoringSub('jurnal')" class="py-2.5 rounded-lg text-slate-600 font-bold text-xs hover:bg-slate-200 transition">Rekap Jurnal</button>
         </div>
 
@@ -261,7 +288,7 @@
               </select>
             </div>
             <div>
-              <label class="block text-xs font-bold text-slate-700 mb-1">Pilih Tanggal Rekapitulasi:</label>
+              <label class="block text-xs font-bold text-slate-700 mb-1">Pilih Tanggal Rekapitulasi (DD/MM/YYYY):</label>
               <input type="date" id="filterTanggalDpl" onchange="loadRekapDpl()" class="w-full bg-white border border-slate-300 rounded-xl p-3 text-sm font-medium text-slate-800 shadow-sm">
             </div>
             <div class="grid grid-cols-2 gap-2 pt-1">
@@ -290,6 +317,42 @@
                   <tr><td colspan="4" class="p-4 text-center text-slate-400 font-medium">Pilih tanggal untuk memuat data...</td></tr>
                 </tbody>
               </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- 1.5 MONITORING KEHADIRAN (SUDAH/BELUM ABSEN PER JENIS) -->
+        <div id="containerMonitoringKehadiran" class="hidden space-y-4">
+          <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-3">
+            <div>
+              <label class="block text-xs font-bold text-slate-700 mb-1">Jenis Presensi:</label>
+              <select id="filterJenisKehadiran" onchange="loadMonitoringKehadiran()" class="w-full bg-white border border-slate-300 rounded-xl p-3 text-sm font-medium text-slate-800 shadow-sm">
+                <option value="Check-In">Check-In (Posko / Piket / Kegiatan)</option>
+                <option value="Check-Out">Check-Out (Posko / Piket)</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-xs font-bold text-slate-700 mb-1">Pilih Tanggal (DD/MM/YYYY):</label>
+              <input type="date" id="filterTanggalKehadiran" onchange="loadMonitoringKehadiran()" class="w-full bg-white border border-slate-300 rounded-xl p-3 text-sm font-medium text-slate-800 shadow-sm">
+            </div>
+          </div>
+
+          <div class="space-y-2">
+            <h4 class="text-sm font-bold text-emerald-700"><i class="fa-solid fa-circle-check"></i> Sudah Absen (<span id="countSudahAbsen">0</span>)</h4>
+            <div id="listSudahAbsen" class="space-y-2 text-sm">
+              <p class="text-slate-400 text-center py-2">Memuat data...</p>
+            </div>
+          </div>
+
+          <div class="space-y-2">
+            <h4 class="text-sm font-bold text-amber-600"><i class="fa-solid fa-triangle-exclamation"></i> Izin / Sakit (<span id="countIzinSakit">0</span>)</h4>
+            <div id="listIzinSakit" class="space-y-2 text-sm">
+            </div>
+          </div>
+
+          <div class="space-y-2">
+            <h4 class="text-sm font-bold text-rose-700"><i class="fa-solid fa-circle-xmark"></i> Belum Absen (<span id="countBelumAbsen">0</span>)</h4>
+            <div id="listBelumAbsen" class="space-y-2 text-sm">
             </div>
           </div>
         </div>
@@ -370,9 +433,9 @@
 
   </main>
 
-  <!-- FIXED BOTTOM NAVIGATION -->
+  <!-- FIXED BOTTOM NAVIGATION (TABS MENU BEKU DIBAWAH) -->
   <nav id="bottomNav" class="hidden fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 shadow-lg z-40 max-w-xl mx-auto">
-    <div class="grid grid-cols-4 gap-1 p-2 text-center text-xs font-bold">
+    <div class="grid grid-cols-5 gap-1 p-2 text-center text-xs font-bold">
       <button id="tabBtnPresensi" onclick="switchTab('presensi')" class="py-2.5 rounded-xl bg-blue-600 text-white transition shadow-sm flex flex-col items-center gap-0.5">
         <i class="fa-solid fa-location-dot text-sm"></i><span>Presensi</span>
       </button>
@@ -385,19 +448,22 @@
       <button id="tabBtnPiket" onclick="switchTab('piket')" class="py-2.5 rounded-xl text-slate-600 hover:bg-slate-100 transition flex flex-col items-center gap-0.5">
         <i class="fa-solid fa-calendar-days text-sm"></i><span>Piket</span>
       </button>
+      <button id="tabBtnRiwayat" onclick="switchTab('riwayat')" class="py-2.5 rounded-xl text-slate-600 hover:bg-slate-100 transition flex flex-col items-center gap-0.5">
+        <i class="fa-solid fa-clock-rotate-left text-sm"></i><span>Riwayat</span>
+      </button>
     </div>
   </nav>
 
   <!-- Footer -->
   <footer class="p-4 text-center text-xs text-slate-500 border-t border-blue-100 bg-white max-w-xl mx-auto w-full font-medium mb-12">
-    &copy; 2026 KKPL Sukowiyono - STAI Diponegoro Tulungagung
+    &copy; KKPL Sukowiyono 2026 - STAI Diponegoro Tulungagung
   </footer>
 
   <script>
-    const API_URL = "https://script.google.com/macros/s/AKfycbx9kQEuvuOq1m1BbZSPUOgpohIULV-Eve7TTXN2P7__cJq6iaxUDiCDzQ-PCIHYdnczBQ/exec";
+    const API_URL = "https://script.google.com/macros/s/AKfycbwvip0NNDF4BPk3bm_uUTEJGZnmaBHt0f3xbGX95o-j0D03Uh8VFLeWSxiJT43kYZLlxQ/exec";
     
-    const POSKO_LAT = -8.0202255;
-    const POSKO_LNG = 111.8930588;
+    const POSKO_LAT = -8.020214361231565;
+    const POSKO_LNG = 111.89308320101165;
     const MAX_RADIUS_M = 500;
 
     let currentUser = null;
@@ -407,8 +473,14 @@
     let base64Image = "";
     let rekapDataDpl = { presensi: [], jurnal: [] };
     let listMahasiswaGlobal = [];
+    let optCheckInPosko = null;
+    let optPresensiKegiatan = null;
 
     window.addEventListener("DOMContentLoaded", () => {
+      const selectTipeInit = document.getElementById("tipePresensi");
+      optCheckInPosko = selectTipeInit.querySelector('option[value="Check-In Posko"]');
+      optPresensiKegiatan = selectTipeInit.querySelector('option[value="Presensi Kegiatan"]');
+
       const savedUser = localStorage.getItem("siap_user");
       if (savedUser) {
         currentUser = JSON.parse(savedUser);
@@ -419,6 +491,7 @@
       document.getElementById("filterTanggalDpl").value = today;
       document.getElementById("jurnalTanggal").value = today;
       document.getElementById("filterTglJurnalDpl").value = today;
+      document.getElementById("filterTanggalKehadiran").value = today;
       loadDaftarMahasiswa();
     });
 
@@ -440,7 +513,7 @@
           currentUser = result.user;
           localStorage.setItem("siap_user", JSON.stringify(currentUser));
           checkUserRoleAndRedirect();
-          showAlert(`Login berhasil, selamat datang ${currentUser.nama}!`, "success");
+          showAlert(`Selamat datang, ${currentUser.nama}!`, "success");
         } else {
           showAlert(result.message || "Username Unik tidak terdaftar!", "error");
         }
@@ -457,19 +530,20 @@
       document.getElementById("userInfoHeader").classList.remove("hidden");
       
       document.getElementById("userNamaHeader").textContent = currentUser.nama;
-      document.getElementById("userJabatanHeader").textContent = `${currentUser.jabatan}${currentUser.prodi ? ' - ' + currentUser.prodi : ''}`;
+      document.getElementById("userJabatanHeader").textContent = currentUser.jabatan;
+      document.getElementById("userProdiHeader").textContent = currentUser.prodi || "";
+
+      document.getElementById("welcomeNamaText").textContent = `Halo, Selamat Datang, ${currentUser.nama}`;
+      document.getElementById("welcomeDetailText").textContent = `${currentUser.jabatan} ${currentUser.prodi ? ' - ' + currentUser.prodi : ''}`;
 
       if (currentUser.jabatan && currentUser.jabatan.toUpperCase() === "DPL") {
         document.getElementById("dashDplCard").classList.remove("hidden");
         document.getElementById("dashAnggotaCard").classList.add("hidden");
         document.getElementById("bottomNav").classList.add("hidden");
-        
-        Promise.all([
-          loadAllJurnalDpl(),
-          loadRekapDpl(),
-          loadProkerData(),
-          loadPiketData()
-        ]);
+        loadRekapDpl();
+        loadAllJurnalDpl();
+        loadProkerData();
+        loadPiketData();
       } else {
         document.getElementById("dashAnggotaCard").classList.remove("hidden");
         document.getElementById("dashDplCard").classList.add("hidden");
@@ -477,6 +551,8 @@
         initGPS();
         loadProkerData();
         loadPiketData();
+        checkPresensiHariIni();
+        loadRiwayatPresensi();
       }
     }
 
@@ -493,7 +569,7 @@
     }
 
     function switchTab(tabName) {
-      ['presensi', 'jurnal', 'proker', 'piket'].forEach(t => {
+      ['presensi', 'jurnal', 'proker', 'piket', 'riwayat'].forEach(t => {
         const cap = t.charAt(0).toUpperCase() + t.slice(1);
         document.getElementById(`tab${cap}`).classList.add("hidden");
         document.getElementById(`tabBtn${cap}`).className = "py-2.5 rounded-xl text-slate-600 hover:bg-slate-100 transition flex flex-col items-center gap-0.5 font-bold";
@@ -502,6 +578,10 @@
       const activeCap = tabName.charAt(0).toUpperCase() + tabName.slice(1);
       document.getElementById(`tab${activeCap}`).classList.remove("hidden");
       document.getElementById(`tabBtn${activeCap}`).className = "py-2.5 rounded-xl bg-blue-600 text-white transition flex flex-col items-center gap-0.5 font-bold shadow-sm";
+
+      if (tabName === 'riwayat') {
+        loadRiwayatPresensi();
+      }
     }
 
     function switchDplSection(section) {
@@ -515,20 +595,32 @@
         document.getElementById("dplSectionMonitoring").classList.remove("hidden");
         document.getElementById("dplMenuMonitoring").className = "py-3 rounded-xl bg-blue-600 text-white transition font-bold shadow-sm";
         document.getElementById("dplMenuInfo").className = "py-3 rounded-xl text-slate-600 hover:bg-slate-100 transition font-bold";
+        loadRekapDpl();
       }
     }
 
     function switchMonitoringSub(sub) {
+      const active = "py-2.5 rounded-lg bg-blue-600 text-white font-bold text-xs shadow-sm transition";
+      const inactive = "py-2.5 rounded-lg text-slate-600 font-bold text-xs hover:bg-slate-200 transition";
+
+      document.getElementById("containerRekapPresensi").classList.add("hidden");
+      document.getElementById("containerMonitoringKehadiran").classList.add("hidden");
+      document.getElementById("containerRekapJurnal").classList.add("hidden");
+      document.getElementById("subMonitoringPresensi").className = inactive;
+      document.getElementById("subMonitoringKehadiran").className = inactive;
+      document.getElementById("subMonitoringJurnal").className = inactive;
+
       if (sub === 'presensi') {
         document.getElementById("containerRekapPresensi").classList.remove("hidden");
-        document.getElementById("containerRekapJurnal").classList.add("hidden");
-        document.getElementById("subMonitoringPresensi").className = "py-2.5 rounded-lg bg-blue-600 text-white font-bold text-xs shadow-sm transition";
-        document.getElementById("subMonitoringJurnal").className = "py-2.5 rounded-lg text-slate-600 font-bold text-xs hover:bg-slate-200 transition";
+        document.getElementById("subMonitoringPresensi").className = active;
+      } else if (sub === 'kehadiran') {
+        document.getElementById("containerMonitoringKehadiran").classList.remove("hidden");
+        document.getElementById("subMonitoringKehadiran").className = active;
+        loadMonitoringKehadiran();
       } else {
-        document.getElementById("containerRekapPresensi").classList.add("hidden");
         document.getElementById("containerRekapJurnal").classList.remove("hidden");
-        document.getElementById("subMonitoringJurnal").className = "py-2.5 rounded-lg bg-blue-600 text-white font-bold text-xs shadow-sm transition";
-        document.getElementById("subMonitoringPresensi").className = "py-2.5 rounded-lg text-slate-600 font-bold text-xs hover:bg-slate-200 transition";
+        document.getElementById("subMonitoringJurnal").className = active;
+        loadAllJurnalDpl();
       }
     }
 
@@ -538,26 +630,23 @@
       const labelKet = document.getElementById("labelKeteranganKhusus");
       const inputKet = document.getElementById("keteranganKhususInput");
 
-      boxSub.classList.add("hidden");
-      boxKet.classList.add("hidden");
-      inputKet.removeAttribute("required");
-      inputKet.value = ""; 
-
       if (val === "Presensi Kegiatan") {
         boxSub.classList.remove("hidden");
-      } 
-      
+      } else {
+        boxSub.classList.add("hidden");
+      }
+
       if (val === "Izin" || val === "Sakit") {
         boxKet.classList.remove("hidden");
         inputKet.setAttribute("required", "true");
         labelKet.textContent = val === "Izin" ? "Alasan Izin (Wajib)" : "Keterangan Sakit (Wajib)";
-      } else if (currentDistance !== null && currentDistance > (MAX_RADIUS_M / 1000)) {
+      } else if (currentDistance !== null && (currentDistance * 1000) > MAX_RADIUS_M) {
         boxKet.classList.remove("hidden");
         inputKet.setAttribute("required", "true");
-        labelKet.textContent = "Alasan Berada di Luar Radius Posko (> 500m)";
-        document.getElementById("distanceText").className = "font-bold text-amber-600";
-      } else if (currentDistance !== null && currentDistance <= (MAX_RADIUS_M / 1000)) {
-        document.getElementById("distanceText").className = "font-bold text-blue-600";
+        labelKet.textContent = `Alasan Berada di Luar Radius Posko (> ${MAX_RADIUS_M}m)`;
+      } else {
+        boxKet.classList.add("hidden");
+        inputKet.removeAttribute("required");
       }
     }
 
@@ -581,14 +670,15 @@
           (pos) => {
             userLat = pos.coords.latitude;
             userLng = pos.coords.longitude;
-            const distanceKm = calculateDistance(userLat, userLng, POSKO_LAT, POSKO_LNG);
-            currentDistance = distanceKm;
-            const distanceMeters = distanceKm * 1000;
+            currentDistance = calculateDistance(userLat, userLng, POSKO_LAT, POSKO_LNG);
+            const distanceMeter = currentDistance * 1000;
 
-            distText.textContent = `${distanceMeters < 1000 ? distanceMeters.toFixed(0) + ' m' : distanceKm.toFixed(2) + ' km'} dari posko`;
+            distText.textContent = distanceMeter < 1000
+              ? `${Math.round(distanceMeter)} m dari posko`
+              : `${currentDistance.toFixed(2)} km dari posko`;
+
             const tipe = document.getElementById("tipePresensi").value;
-
-            if (distanceMeters <= MAX_RADIUS_M) {
+            if (distanceMeter <= MAX_RADIUS_M) {
               distText.className = "font-bold text-blue-600";
               if (tipe !== "Izin" && tipe !== "Sakit") {
                 document.getElementById("boxKeteranganKhusus").classList.add("hidden");
@@ -596,11 +686,9 @@
               }
             } else {
               distText.className = "font-bold text-amber-600";
-              if (tipe !== "Izin" && tipe !== "Sakit") {
-                document.getElementById("boxKeteranganKhusus").classList.remove("hidden");
-                document.getElementById("keteranganKhususInput").setAttribute("required", "true");
-                document.getElementById("labelKeteranganKhusus").textContent = "Alasan Berada di Luar Radius Posko (> 500m)";
-              }
+              document.getElementById("boxKeteranganKhusus").classList.remove("hidden");
+              document.getElementById("keteranganKhususInput").setAttribute("required", "true");
+              document.getElementById("labelKeteranganKhusus").textContent = `Alasan Berada di Luar Radius Posko (> ${MAX_RADIUS_M}m)`;
             }
           },
           (err) => {
@@ -620,6 +708,50 @@
                 Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
                 Math.sin(dLon / 2) * Math.sin(dLon / 2);
       return R * (2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a)));
+    }
+
+    function getTodayDDMMYYYY() {
+      const now = new Date();
+      const d = ("0" + now.getDate()).slice(-2);
+      const m = ("0" + (now.getMonth() + 1)).slice(-2);
+      const y = now.getFullYear();
+      return `${d}/${m}/${y}`;
+    }
+
+    async function checkPresensiHariIni() {
+      if (!currentUser) return;
+      const todayStr = getTodayDDMMYYYY();
+      try {
+        const res = await fetch(`${API_URL}?action=getRekapDpl&tanggal=${todayStr}`);
+        const result = await res.json();
+        if (result.status === "success") {
+          const sudahAda = result.presensi.some(p =>
+            p.nama && p.nama.toLowerCase() === currentUser.nama.toLowerCase() &&
+            (p.status.startsWith("Check-In Posko") || p.status.startsWith("Kegiatan -"))
+          );
+          updateTipePresensiOptions(sudahAda);
+        }
+      } catch (err) {
+        // Kalau gagal cek status ke server, biarkan pilihan tetap tampil supaya tidak menghalangi presensi
+      }
+    }
+
+    function updateTipePresensiOptions(disallow) {
+      const select = document.getElementById("tipePresensi");
+      if (disallow) {
+        if (optCheckInPosko && select.contains(optCheckInPosko)) select.removeChild(optCheckInPosko);
+        if (optPresensiKegiatan && select.contains(optPresensiKegiatan)) select.removeChild(optPresensiKegiatan);
+        if (select.value === "Check-In Posko" || select.value === "Presensi Kegiatan" || !select.value) {
+          select.value = "Check-Out Posko";
+        }
+        handleTipePresensi(select.value);
+      } else {
+        if (optCheckInPosko && !select.contains(optCheckInPosko)) select.insertBefore(optCheckInPosko, select.firstChild);
+        if (optPresensiKegiatan && !select.contains(optPresensiKegiatan)) {
+          const izinOption = select.querySelector('option[value="Izin"]');
+          select.insertBefore(optPresensiKegiatan, izinOption);
+        }
+      }
     }
 
     function processAndPreviewFoto(e) {
@@ -718,6 +850,8 @@
           document.getElementById("previewContainer").classList.add("hidden");
           document.getElementById("uploadPlaceholder").classList.remove("hidden");
           base64Image = "";
+          checkPresensiHariIni();
+          loadRiwayatPresensi();
         } else {
           showAlert(result.message || "Gagal menyimpan presensi.", "error");
         }
@@ -729,6 +863,7 @@
       }
     }
 
+    // NOTIFIKASI PRESENSI POP-UP 5 DETIK REALTIME
     function showSuccessPresensiNotification(waktuServer) {
       const alert = document.getElementById("statusAlert");
       alert.className = "mb-4 p-4 rounded-xl text-sm font-bold border flex flex-col items-center justify-center text-center gap-1.5 bg-emerald-50 border-emerald-300 text-emerald-800 shadow-sm transition-all duration-300";
@@ -764,7 +899,7 @@
         tanggal: formattedDate,
         rincian: document.getElementById("jurnalRincian").value,
         sasaran: document.getElementById("jurnalSasaran").value || "-",
-        target: document.getElementById("jurnalTarget").value || "-",
+        target: "-",
         keterangan: document.getElementById("jurnalKeterangan").value || "-"
       };
 
@@ -775,6 +910,7 @@
         const res = await fetch(API_URL, { method: "POST", body: JSON.stringify(payload) });
         const result = await res.json();
         if (result.status === "success") {
+          // NOTIFIKASI JURNAL MASUK DATABASE SIAP
           showAlert("Selamat, jurnalmu sudah masuk database SIAP", "success");
           e.target.reset();
         } else {
@@ -819,24 +955,66 @@
       try {
         const res = await fetch(`${API_URL}?action=getPiket`);
         const result = await res.json();
-        const container = document.getElementById("listPiketContainer");
-        const dplContainer = document.getElementById("dplListPiket");
 
-        if (result.status === "success" && result.data.length > 0) {
-          const htmlContent = result.data.map(p => `
-            <div class="p-3.5 bg-slate-50 rounded-xl border border-slate-200 flex justify-between items-center shadow-sm">
-              <span class="font-bold text-slate-800">${p.hari}</span>
-              <span class="font-medium text-slate-600">${p.petugas}</span>
+        if (result.status === "success") {
+          const anggotaHariIni = result.anggotaHariIni || [];
+          const daftarNamaHtml = anggotaHariIni.length > 0
+            ? anggotaHariIni.map(n => `<li>${n}</li>`).join('')
+            : `<li class="list-none text-slate-400 italic">Tidak ada anggota / libur.</li>`;
+
+          const polaHtml = (result.pola || []).map(p => `
+            <div class="flex justify-between px-3 py-1.5 bg-slate-50 rounded-lg border border-slate-100">
+              <span>${p}</span>
             </div>
           `).join('');
 
-          if(container) container.innerHTML = htmlContent;
-          if(dplContainer) dplContainer.innerHTML = htmlContent;
-        } else {
-          if(container) container.innerHTML = `<p class="text-slate-400 text-center py-2">Belum ada jadwal piket.</p>`;
-          if(dplContainer) dplContainer.innerHTML = `<p class="text-slate-400 text-center py-2">Belum ada jadwal piket.</p>`;
+          const targets = [
+            { hari: "piketHariLabel", kelompok: "piketKelompokLabel", anggota: "piketAnggotaList", pola: "piketPolaList" },
+            { hari: "dplPiketHariLabel", kelompok: "dplPiketKelompokLabel", anggota: "dplPiketAnggotaList", pola: "dplPiketPolaList" }
+          ];
+
+          targets.forEach(t => {
+            const elHari = document.getElementById(t.hari);
+            const elKelompok = document.getElementById(t.kelompok);
+            const elAnggota = document.getElementById(t.anggota);
+            const elPola = document.getElementById(t.pola);
+            if (elHari) elHari.textContent = result.hariIni || "-";
+            if (elKelompok) elKelompok.textContent = result.petugasHariIni || "Belum diatur";
+            if (elAnggota) elAnggota.innerHTML = daftarNamaHtml;
+            if (elPola) elPola.innerHTML = polaHtml || `<p class="text-slate-400">Pola jadwal belum diatur.</p>`;
+          });
         }
       } catch (e) {}
+    }
+
+    async function loadRiwayatPresensi() {
+      if (!currentUser) return;
+      const container = document.getElementById("listRiwayatContainer");
+      if (!container) return;
+      container.innerHTML = `<p class="text-slate-400 text-center py-4 font-medium"><i class="fa-solid fa-spinner fa-spin"></i> Memuat riwayat...</p>`;
+
+      try {
+        const res = await fetch(`${API_URL}?action=getRiwayatPresensi&nama=${encodeURIComponent(currentUser.nama)}`);
+        const result = await res.json();
+
+        if (result.status === "success" && result.riwayat.length > 0) {
+          container.innerHTML = result.riwayat.map(r => `
+            <div class="p-3.5 bg-slate-50 rounded-xl border border-slate-200 shadow-sm">
+              <div class="flex justify-between items-center">
+                <span class="font-bold text-slate-800">${r.tanggal}</span>
+                <span class="text-xs text-slate-500">${r.waktu}</span>
+              </div>
+              <p class="text-sm font-semibold text-blue-600 mt-1">${r.status}</p>
+              ${r.alasan && r.alasan !== '-' ? `<p class="text-xs text-slate-500 mt-1">Keterangan: ${r.alasan}</p>` : ''}
+              ${r.foto && r.foto !== '-' ? `<a href="${r.foto}" target="_blank" class="text-xs text-blue-600 font-bold underline mt-1 inline-block">Lihat Foto</a>` : ''}
+            </div>
+          `).join('');
+        } else {
+          container.innerHTML = `<p class="text-slate-400 text-center py-4 font-medium">Belum ada riwayat presensi.</p>`;
+        }
+      } catch (err) {
+        container.innerHTML = `<p class="text-rose-600 text-center py-4 font-bold">Gagal memuat riwayat.</p>`;
+      }
     }
 
     async function loadDaftarMahasiswa() {
@@ -930,6 +1108,68 @@
       }
     }
 
+    async function loadMonitoringKehadiran() {
+      const jenis = document.getElementById("filterJenisKehadiran").value; // "Check-In" atau "Check-Out"
+      const rawDate = document.getElementById("filterTanggalKehadiran").value;
+      const tglFormatted = formatDateToDDMMYYYY(rawDate);
+      const listSudah = document.getElementById("listSudahAbsen");
+      const listIzinSakit = document.getElementById("listIzinSakit");
+      const listBelum = document.getElementById("listBelumAbsen");
+
+      listSudah.innerHTML = `<p class="text-slate-400 text-center py-2"><i class="fa-solid fa-spinner fa-spin"></i> Memuat data...</p>`;
+      listIzinSakit.innerHTML = "";
+      listBelum.innerHTML = "";
+
+      try {
+        const res = await fetch(`${API_URL}?action=getRekapDpl&tanggal=${tglFormatted}`);
+        const result = await res.json();
+        if (result.status !== "success") throw new Error("Gagal mengambil data");
+
+        const prefixSudah = jenis === "Check-In"
+          ? ["Check-In Posko", "Check-In Piket", "Kegiatan -"]
+          : ["Check-Out Posko", "Check-Out Piket"];
+
+        const namaSudah = new Set();
+        const namaIzinSakit = new Set();
+
+        result.presensi.forEach(p => {
+          if (!p.status || !p.nama) return;
+          const namaLower = p.nama.toLowerCase();
+          if (prefixSudah.some(pref => p.status.startsWith(pref))) {
+            namaSudah.add(namaLower);
+          }
+          if (p.status.startsWith("Izin") || p.status.startsWith("Sakit")) {
+            namaIzinSakit.add(namaLower);
+          }
+        });
+
+        const sudah = listMahasiswaGlobal.filter(m => namaSudah.has((m.nama || "").toLowerCase()));
+        const izinSakit = listMahasiswaGlobal.filter(m => namaIzinSakit.has((m.nama || "").toLowerCase()) && !namaSudah.has((m.nama || "").toLowerCase()));
+        const belum = listMahasiswaGlobal.filter(m => !namaSudah.has((m.nama || "").toLowerCase()) && !namaIzinSakit.has((m.nama || "").toLowerCase()));
+
+        document.getElementById("countSudahAbsen").textContent = sudah.length;
+        document.getElementById("countIzinSakit").textContent = izinSakit.length;
+        document.getElementById("countBelumAbsen").textContent = belum.length;
+
+        listSudah.innerHTML = sudah.length > 0
+          ? sudah.map(m => `<div class="p-3 bg-emerald-50 border border-emerald-200 rounded-xl font-semibold text-emerald-800 flex items-center gap-2"><i class="fa-solid fa-circle-check"></i> ${m.nama}</div>`).join('')
+          : `<p class="text-slate-400 text-center py-2">Belum ada yang absen jenis ini.</p>`;
+
+        listIzinSakit.innerHTML = izinSakit.length > 0
+          ? izinSakit.map(m => `<div class="p-3 bg-amber-50 border border-amber-300 rounded-xl font-semibold text-amber-700 flex items-center gap-2"><i class="fa-solid fa-triangle-exclamation"></i> ${m.nama}</div>`).join('')
+          : `<p class="text-slate-400 text-center py-2">Tidak ada yang izin/sakit hari ini.</p>`;
+
+        listBelum.innerHTML = belum.length > 0
+          ? belum.map(m => `<div class="p-3 bg-rose-50 border border-rose-200 rounded-xl font-semibold text-rose-800 flex items-center gap-2"><i class="fa-solid fa-circle-exclamation"></i> ${m.nama}</div>`).join('')
+          : `<p class="text-slate-400 text-center py-2">Semua sudah absen jenis ini.</p>`;
+
+      } catch (err) {
+        listSudah.innerHTML = `<p class="text-rose-600 text-center py-2 font-bold">Gagal memuat data monitoring.</p>`;
+        listIzinSakit.innerHTML = "";
+        listBelum.innerHTML = "";
+      }
+    }
+
     function toggleJenisJurnalFilter() {
       const jenis = document.getElementById("filterJenisJurnal").value;
       const boxTgl = document.getElementById("boxFilterTanggalJurnal");
@@ -960,18 +1200,12 @@
       }
 
       if (jenis === "Harian") {
-        const rawDate = document.getElementById("filterTglJurnalDpl").value; 
-        const targetTgl = formatDateToDDMMYYYY(rawDate); 
-        dataFiltered = dataFiltered.filter(j => {
-          let cleanJurnalTgl = String(j.tanggal).trim();
-          if (cleanJurnalTgl.includes(" ")) {
-            cleanJurnalTgl = cleanJurnalTgl.split(" ")[0]; 
-          }
-          return cleanJurnalTgl === targetTgl;
-        });
+        const rawDate = document.getElementById("filterTglJurnalDpl").value;
+        const targetTgl = formatDateToDDMMYYYY(rawDate);
+        dataFiltered = dataFiltered.filter(j => j.tanggal === targetTgl);
       } else if (jenis === "Mingguan") {
         const targetMinggu = document.getElementById("filterMingguKeDpl").value;
-        dataFiltered = dataFiltered.filter(j => String(j.mingguKe).trim() === String(targetMinggu).trim());
+        dataFiltered = dataFiltered.filter(j => String(j.mingguKe) === String(targetMinggu));
       }
 
       if (dataFiltered.length > 0) {
@@ -1027,6 +1261,7 @@
         dataToExport = dataToExport.filter(p => p.nama.toLowerCase() === mhsFilter.toLowerCase());
       }
 
+      // PDF TANPA LINK FOTO SESUAI PERINTAH
       const presensiRows = dataToExport.map(p => [p.waktu, p.nama, p.status, p.gps]);
       doc.autoTable({
         startY: 22,
@@ -1047,11 +1282,10 @@
       }
       if (jenis === "Harian") {
         const rawDate = document.getElementById("filterTglJurnalDpl").value;
-        const targetTgl = formatDateToDDMMYYYY(rawDate);
-        dataFiltered = dataFiltered.filter(j => String(j.tanggal).trim() === targetTgl);
+        dataFiltered = dataFiltered.filter(j => j.tanggal === formatDateToDDMMYYYY(rawDate));
       } else if (jenis === "Mingguan") {
         const targetMinggu = document.getElementById("filterMingguKeDpl").value;
-        dataFiltered = dataFiltered.filter(j => String(j.mingguKe).trim() === String(targetMinggu).trim());
+        dataFiltered = dataFiltered.filter(j => String(j.mingguKe) === String(targetMinggu));
       }
 
       const wb = XLSX.utils.book_new();
@@ -1072,11 +1306,10 @@
       }
       if (jenis === "Harian") {
         const rawDate = document.getElementById("filterTglJurnalDpl").value;
-        const targetTgl = formatDateToDDMMYYYY(rawDate);
-        dataFiltered = dataFiltered.filter(j => String(j.tanggal).trim() === targetTgl);
+        dataFiltered = dataFiltered.filter(j => j.tanggal === formatDateToDDMMYYYY(rawDate));
       } else if (jenis === "Mingguan") {
         const targetMinggu = document.getElementById("filterMingguKeDpl").value;
-        dataFiltered = dataFiltered.filter(j => String(j.mingguKe).trim() === String(targetMinggu).trim());
+        dataFiltered = dataFiltered.filter(j => String(j.mingguKe) === String(targetMinggu));
       }
 
       doc.setFontSize(14);
