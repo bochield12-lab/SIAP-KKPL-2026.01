@@ -456,11 +456,11 @@
 
   <!-- Footer -->
   <footer class="p-4 text-center text-xs text-slate-500 border-t border-blue-100 bg-white max-w-xl mx-auto w-full font-medium mb-12">
-    &copy; KKPL Sukowiyono 2026 - STAI Diponegoro Tulungagung
+    &copy; 2026 KKPL Sukowiyono - STAI Diponegoro Tulungagung
   </footer>
 
   <script>
-    const API_URL = "https://script.google.com/macros/s/AKfycbw_C9olYBkYVzUVbZ1tgRueLJDO_0AaUCA1KSqej2gXENJ1qaEbfpbPuVX7dsxNFflNuw/exec";
+    const API_URL = "https://script.google.com/macros/s/AKfycbzYc_45aaT9D-LdjS0C6dUurJZ3j7sBMkNinLQsm_-EuYn2iOwCSG6SjMXOoJNCLHDyOw/exec";
     
     const POSKO_LAT = -8.020214361231565;
     const POSKO_LNG = 111.89308320101165;
@@ -473,14 +473,18 @@
     let base64Image = "";
     let rekapDataDpl = { presensi: [], jurnal: [] };
     let listMahasiswaGlobal = [];
-    let optCheckInPosko = null;
-    let optPresensiKegiatan = null;
+
+    const TIPE_PRESENSI_TEMPLATE = [
+      { value: "Check-In Posko", label: "Check-In Posko (Absen Datang)" },
+      { value: "Check-Out Posko", label: "Check-Out Posko (Absen Pulang)" },
+      { value: "Check-In Piket", label: "Check-In Piket" },
+      { value: "Check-Out Piket", label: "Check-Out Piket" },
+      { value: "Presensi Kegiatan", label: "Presensi Kegiatan" },
+      { value: "Izin", label: "Izin" },
+      { value: "Sakit", label: "Sakit" }
+    ];
 
     window.addEventListener("DOMContentLoaded", () => {
-      const selectTipeInit = document.getElementById("tipePresensi");
-      optCheckInPosko = selectTipeInit.querySelector('option[value="Check-In Posko"]');
-      optPresensiKegiatan = selectTipeInit.querySelector('option[value="Presensi Kegiatan"]');
-
       const savedUser = localStorage.getItem("siap_user");
       if (savedUser) {
         currentUser = JSON.parse(savedUser);
@@ -724,34 +728,35 @@
       try {
         const res = await fetch(`${API_URL}?action=getRekapDpl&tanggal=${todayStr}`);
         const result = await res.json();
+        let sudahDipakai = {};
         if (result.status === "success") {
-          const sudahAda = result.presensi.some(p =>
-            p.nama && p.nama.toLowerCase() === currentUser.nama.toLowerCase() &&
-            (p.status.startsWith("Check-In Posko") || p.status.startsWith("Kegiatan -"))
-          );
-          updateTipePresensiOptions(sudahAda);
+          const statusUser = result.presensi
+            .filter(p => p.nama && p.nama.toLowerCase() === currentUser.nama.toLowerCase())
+            .map(p => p.status || "");
+
+          TIPE_PRESENSI_TEMPLATE.forEach(t => {
+            if (t.value === "Presensi Kegiatan") return; // tidak pernah dibatasi
+            sudahDipakai[t.value] = statusUser.some(s => s.startsWith(t.value));
+          });
         }
+        updateTipePresensiOptions(sudahDipakai);
       } catch (err) {
-        // Kalau gagal cek status ke server, biarkan pilihan tetap tampil supaya tidak menghalangi presensi
+        // Kalau gagal cek status ke server, biarkan semua pilihan tetap tampil supaya tidak menghalangi presensi
       }
     }
 
-    function updateTipePresensiOptions(disallow) {
+    function updateTipePresensiOptions(sudahDipakai) {
       const select = document.getElementById("tipePresensi");
-      if (disallow) {
-        if (optCheckInPosko && select.contains(optCheckInPosko)) select.removeChild(optCheckInPosko);
-        if (optPresensiKegiatan && select.contains(optPresensiKegiatan)) select.removeChild(optPresensiKegiatan);
-        if (select.value === "Check-In Posko" || select.value === "Presensi Kegiatan" || !select.value) {
-          select.value = "Check-Out Posko";
-        }
-        handleTipePresensi(select.value);
-      } else {
-        if (optCheckInPosko && !select.contains(optCheckInPosko)) select.insertBefore(optCheckInPosko, select.firstChild);
-        if (optPresensiKegiatan && !select.contains(optPresensiKegiatan)) {
-          const izinOption = select.querySelector('option[value="Izin"]');
-          select.insertBefore(optPresensiKegiatan, izinOption);
-        }
+      const nilaiSaatIni = select.value;
+
+      const optionsTersisa = TIPE_PRESENSI_TEMPLATE.filter(t => t.value === "Presensi Kegiatan" || !sudahDipakai[t.value]);
+
+      select.innerHTML = optionsTersisa.map(t => `<option value="${t.value}">${t.label}</option>`).join('');
+
+      if (optionsTersisa.some(t => t.value === nilaiSaatIni)) {
+        select.value = nilaiSaatIni;
       }
+      handleTipePresensi(select.value);
     }
 
     function processAndPreviewFoto(e) {
