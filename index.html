@@ -463,7 +463,7 @@
   </footer>
 
   <script>
-    const API_URL = "https://script.google.com/macros/s/AKfycbw_C9olYBkYVzUVbZ1tgRueLJDO_0AaUCA1KSqej2gXENJ1qaEbfpbPuVX7dsxNFflNuw/exec";
+    const API_URL = "https://script.google.com/macros/s/AKfycbzYc_45aaT9D-LdjS0C6dUurJZ3j7sBMkNinLQsm_-EuYn2iOwCSG6SjMXOoJNCLHDyOw/exec";
     
     const POSKO_LAT = -8.020214361231565;
     const POSKO_LNG = 111.89308320101165;
@@ -735,7 +735,7 @@
         let sudahDipakai = {};
         if (result.status === "success") {
           const statusUser = result.presensi
-            .filter(p => p.nama && p.nama.toLowerCase() === currentUser.nama.toLowerCase())
+            .filter(p => p.nama && p.nama.trim().toLowerCase() === currentUser.nama.trim().toLowerCase())
             .map(p => p.status || "");
 
           TIPE_PRESENSI_TEMPLATE.forEach(t => {
@@ -1141,7 +1141,7 @@
 
         result.presensi.forEach(p => {
           if (!p.status || !p.nama) return;
-          const namaLower = p.nama.toLowerCase();
+          const namaLower = p.nama.trim().toLowerCase();
           if (prefixSudah.some(pref => p.status.startsWith(pref))) {
             namaSudah.add(namaLower);
           }
@@ -1150,9 +1150,9 @@
           }
         });
 
-        const sudah = listMahasiswaGlobal.filter(m => namaSudah.has((m.nama || "").toLowerCase()));
-        const izinSakit = listMahasiswaGlobal.filter(m => namaIzinSakit.has((m.nama || "").toLowerCase()) && !namaSudah.has((m.nama || "").toLowerCase()));
-        const belum = listMahasiswaGlobal.filter(m => !namaSudah.has((m.nama || "").toLowerCase()) && !namaIzinSakit.has((m.nama || "").toLowerCase()));
+        const sudah = listMahasiswaGlobal.filter(m => namaSudah.has((m.nama || "").trim().toLowerCase()));
+        const izinSakit = listMahasiswaGlobal.filter(m => namaIzinSakit.has((m.nama || "").trim().toLowerCase()) && !namaSudah.has((m.nama || "").trim().toLowerCase()));
+        const belum = listMahasiswaGlobal.filter(m => !namaSudah.has((m.nama || "").trim().toLowerCase()) && !namaIzinSakit.has((m.nama || "").trim().toLowerCase()));
 
         document.getElementById("countSudahAbsen").textContent = sudah.length;
         document.getElementById("countIzinSakit").textContent = izinSakit.length;
