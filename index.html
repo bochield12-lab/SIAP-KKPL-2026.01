@@ -189,6 +189,68 @@
 
           <button type="submit" id="btnSubmitJurnal" class="w-full py-3.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold rounded-xl shadow-md transition">Simpan Jurnal</button>
         </form>
+
+        <div class="pt-4 mt-2 border-t border-slate-100 space-y-4">
+          <h3 class="text-base font-bold text-blue-600"><i class="fa-solid fa-book-open"></i> Rekap Jurnal Saya</h3>
+
+          <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-4">
+            <div>
+              <label class="block text-xs font-bold text-slate-700 mb-1">Jenis Jurnal:</label>
+              <select id="filterJenisJurnalSaya" onchange="toggleJenisJurnalSayaFilter()" class="w-full bg-white border border-slate-300 rounded-xl p-3 text-sm font-medium text-slate-800 shadow-sm">
+                <option value="Harian">Jurnal Harian</option>
+                <option value="Mingguan">Jurnal Mingguan</option>
+                <option value="Final">Jurnal Final</option>
+              </select>
+            </div>
+
+            <div id="boxFilterTanggalJurnalSaya">
+              <label class="block text-xs font-bold text-slate-700 mb-1">Pilih Tanggal:</label>
+              <input type="date" id="filterTglJurnalSaya" onchange="renderJurnalSayaFiltered()" class="w-full bg-white border border-slate-300 rounded-xl p-3 text-sm font-medium text-slate-800 shadow-sm">
+            </div>
+
+            <div id="boxFilterMingguJurnalSaya" class="hidden">
+              <label class="block text-xs font-bold text-slate-700 mb-1">Pilih Minggu Ke-:</label>
+              <select id="filterMingguKeSaya" onchange="renderJurnalSayaFiltered()" class="w-full bg-white border border-slate-300 rounded-xl p-3 text-sm font-medium text-slate-800 shadow-sm">
+                <option value="1">Minggu ke-1</option>
+                <option value="2">Minggu ke-2</option>
+                <option value="3">Minggu ke-3</option>
+                <option value="4">Minggu ke-4</option>
+                <option value="5">Minggu ke-5</option>
+                <option value="6">Minggu ke-6</option>
+                <option value="7">Minggu ke-7</option>
+                <option value="8">Minggu ke-8</option>
+              </select>
+            </div>
+
+            <div class="grid grid-cols-2 gap-2 pt-2">
+              <button onclick="exportToExcelJurnalSaya()" class="py-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-bold text-xs flex items-center justify-center gap-1.5 shadow-sm">
+                <i class="fa-solid fa-file-excel"></i> Unduh Excel
+              </button>
+              <button onclick="exportToPDFJurnalSaya()" class="py-3 bg-rose-600 hover:bg-rose-700 text-white rounded-xl font-bold text-xs flex items-center justify-center gap-1.5 shadow-sm">
+                <i class="fa-solid fa-file-pdf"></i> Unduh PDF
+              </button>
+            </div>
+          </div>
+
+          <div class="space-y-2">
+            <div class="overflow-x-auto border border-slate-200 rounded-xl shadow-sm">
+              <table class="w-full text-xs text-left text-slate-700">
+                <thead class="bg-blue-50 text-blue-700 uppercase border-b border-blue-100 font-bold">
+                  <tr>
+                    <th class="p-3">Tanggal</th>
+                    <th class="p-3">Kategori</th>
+                    <th class="p-3">Rincian Kegiatan</th>
+                    <th class="p-3">Sasaran</th>
+                    <th class="p-3">Keterangan</th>
+                  </tr>
+                </thead>
+                <tbody id="tbodyJurnalSaya">
+                  <tr><td colspan="5" class="p-4 text-center text-slate-400 font-medium">Memuat data jurnal...</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
       </div>
 
       <!-- TAB PROKER -->
@@ -470,7 +532,7 @@
   </footer>
 
   <script>
-    const API_URL = "https://script.google.com/macros/s/AKfycbw_C9olYBkYVzUVbZ1tgRueLJDO_0AaUCA1KSqej2gXENJ1qaEbfpbPuVX7dsxNFflNuw/exec";
+    const API_URL = "https://script.google.com/macros/s/AKfycbzYc_45aaT9D-LdjS0C6dUurJZ3j7sBMkNinLQsm_-EuYn2iOwCSG6SjMXOoJNCLHDyOw/exec";
     
     const POSKO_LAT = -8.020214361231565;
     const POSKO_LNG = 111.89308320101165;
@@ -509,6 +571,7 @@
       document.getElementById("filterTanggalDpl").value = today;
       document.getElementById("jurnalTanggal").value = today;
       document.getElementById("filterTglJurnalDpl").value = today;
+      document.getElementById("filterTglJurnalSaya").value = today;
       document.getElementById("filterTanggalKehadiran").value = today;
       loadDaftarMahasiswa();
     });
@@ -584,6 +647,7 @@
         loadPiketData();
         checkPresensiHariIni();
         loadRiwayatPresensi();
+        loadRekapJurnalSaya();
       }
     }
 
@@ -945,6 +1009,7 @@
           // NOTIFIKASI JURNAL MASUK DATABASE SIAP
           showAlert("Selamat, jurnalmu sudah masuk database SIAP", "success");
           e.target.reset();
+          loadRekapJurnalSaya();
         } else {
           showAlert("Gagal menyimpan jurnal.", "error");
         }
@@ -1156,6 +1221,120 @@
       } catch (err) {
         tbodyJ.innerHTML = `<tr><td colspan="6" class="p-4 text-center text-rose-600 font-bold">Gagal mengambil data jurnal.</td></tr>`;
       }
+    }
+
+    let jurnalSayaData = [];
+
+    async function loadRekapJurnalSaya() {
+      if (!currentUser) return;
+      const tbodyS = document.getElementById("tbodyJurnalSaya");
+      if (!tbodyS) return;
+      tbodyS.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-slate-400 font-medium"><i class="fa-solid fa-spinner fa-spin"></i> Memuat rekap jurnal...</td></tr>`;
+
+      try {
+        const res = await fetch(`${API_URL}?action=getAllJurnal`);
+        const result = await res.json();
+
+        if (result.status === "success") {
+          jurnalSayaData = result.jurnal.filter(j => j.nama && j.nama.trim().toLowerCase() === currentUser.nama.trim().toLowerCase());
+          renderJurnalSayaFiltered();
+        }
+      } catch (err) {
+        tbodyS.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-rose-600 font-bold">Gagal mengambil data jurnal.</td></tr>`;
+      }
+    }
+
+    function toggleJenisJurnalSayaFilter() {
+      const jenis = document.getElementById("filterJenisJurnalSaya").value;
+      const boxTgl = document.getElementById("boxFilterTanggalJurnalSaya");
+      const boxMinggu = document.getElementById("boxFilterMingguJurnalSaya");
+
+      if (jenis === "Harian") {
+        boxTgl.classList.remove("hidden");
+        boxMinggu.classList.add("hidden");
+      } else if (jenis === "Mingguan") {
+        boxTgl.classList.add("hidden");
+        boxMinggu.classList.remove("hidden");
+      } else {
+        boxTgl.classList.add("hidden");
+        boxMinggu.classList.add("hidden");
+      }
+      renderJurnalSayaFiltered();
+    }
+
+    function renderJurnalSayaFiltered() {
+      const jenis = document.getElementById("filterJenisJurnalSaya").value;
+      const tbodyS = document.getElementById("tbodyJurnalSaya");
+
+      let dataFiltered = jurnalSayaData;
+
+      if (jenis === "Harian") {
+        const rawDate = document.getElementById("filterTglJurnalSaya").value;
+        const targetTgl = formatDateToDDMMYYYY(rawDate);
+        dataFiltered = dataFiltered.filter(j => j.tanggal === targetTgl);
+      } else if (jenis === "Mingguan") {
+        const targetMinggu = document.getElementById("filterMingguKeSaya").value;
+        dataFiltered = dataFiltered.filter(j => String(j.mingguKe) === String(targetMinggu));
+      }
+
+      if (dataFiltered.length > 0) {
+        tbodyS.innerHTML = dataFiltered.map(j => `
+          <tr class="border-b border-slate-100 hover:bg-slate-50">
+            <td class="p-3 font-medium">${j.tanggal}</td>
+            <td class="p-3 font-semibold text-blue-600">${j.kategori}</td>
+            <td class="p-3 text-slate-700">${j.rincian}</td>
+            <td class="p-3 text-slate-600">${j.sasaran}</td>
+            <td class="p-3 text-slate-600">${j.keterangan || '-'}</td>
+          </tr>
+        `).join('');
+      } else {
+        tbodyS.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-slate-400 font-medium">Tidak ada data jurnal sesuai filter.</td></tr>`;
+      }
+    }
+
+    function exportToExcelJurnalSaya() {
+      const jenis = document.getElementById("filterJenisJurnalSaya").value;
+      let dataFiltered = jurnalSayaData;
+
+      if (jenis === "Harian") {
+        const rawDate = document.getElementById("filterTglJurnalSaya").value;
+        dataFiltered = dataFiltered.filter(j => j.tanggal === formatDateToDDMMYYYY(rawDate));
+      } else if (jenis === "Mingguan") {
+        const targetMinggu = document.getElementById("filterMingguKeSaya").value;
+        dataFiltered = dataFiltered.filter(j => String(j.mingguKe) === String(targetMinggu));
+      }
+
+      const wb = XLSX.utils.book_new();
+      const wsJ = XLSX.utils.json_to_sheet(dataFiltered);
+      XLSX.utils.book_append_sheet(wb, wsJ, "Jurnal_Saya");
+      XLSX.writeFile(wb, `Rekap_Jurnal_${currentUser.nama}_${jenis}.xlsx`);
+    }
+
+    function exportToPDFJurnalSaya() {
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF();
+      const jenis = document.getElementById("filterJenisJurnalSaya").value;
+      let dataFiltered = jurnalSayaData;
+
+      if (jenis === "Harian") {
+        const rawDate = document.getElementById("filterTglJurnalSaya").value;
+        dataFiltered = dataFiltered.filter(j => j.tanggal === formatDateToDDMMYYYY(rawDate));
+      } else if (jenis === "Mingguan") {
+        const targetMinggu = document.getElementById("filterMingguKeSaya").value;
+        dataFiltered = dataFiltered.filter(j => String(j.mingguKe) === String(targetMinggu));
+      }
+
+      doc.setFontSize(14);
+      doc.text(`REKAP JURNAL (${jenis.toUpperCase()}) - ${currentUser.nama}`, 14, 15);
+
+      const jurnalRows = dataFiltered.map(j => [j.tanggal, j.kategori, j.rincian, j.sasaran, j.keterangan || '-']);
+      doc.autoTable({
+        startY: 22,
+        head: [['Tanggal', 'Kategori', 'Rincian', 'Sasaran', 'Keterangan']],
+        body: jurnalRows,
+      });
+
+      doc.save(`Rekap_Jurnal_${currentUser.nama}_${jenis}.pdf`);
     }
 
     async function loadMonitoringKehadiran() {
